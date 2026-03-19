@@ -18,7 +18,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _userService.GetAll();
+        var users = await _userService.GetAllAsync();
         return Ok(users);
     }
 
@@ -27,7 +27,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var user = await _userService.Create(request);
+            var user = await _userService.CreateAsync(request);
             return Ok(user);
         }
         catch (Exception ex)
@@ -35,5 +35,7 @@ public class UsersController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    
 
 }

@@ -15,7 +15,7 @@ public class UserService : IUserService
         _context = context;
     }
 
-    public async Task<IEnumerable<UserResponsDto>> GetAll()
+    public async Task<IEnumerable<UserResponsDto>> GetAllAsync()
     {
         List<User> users = await _context.Users.ToListAsync();
         return users.Select(u => new UserResponsDto
@@ -28,7 +28,7 @@ public class UserService : IUserService
         });
     }
 
-    public async Task<UserResponsDto?> GetById(int id)
+    public async Task<UserResponsDto?> GetByIdAsync(int id)
     {
         User? user = await _context.Users.FindAsync(id);
         if (user == null) return null;
@@ -42,32 +42,15 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<UserCreateDto> Create(UserCreateDto request)
+    public async Task<UserCreateDto> CreateAsync(UserCreateDto request)
     {
         if (await _context.Users.AnyAsync(u => u.Username == request.Username))
         {
             throw new Exception("Username นี้มีอยู่แล้ว");
-        } else if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        }
+        else if (await _context.Users.AnyAsync(u => u.Email == request.Email))
         {
             throw new Exception("Email นี้มีอยู่แล้ว");
-        } else if (request.Password != request.ConfirmPassword)
-        {
-            throw new Exception("Password และ Confirm Password ไม่ตรงกัน");
-        } else if (request.Password.Length < 6)
-        {
-            throw new Exception("Password ต้องมีความยาวอย่างน้อย 6 ตัวอักษร");
-        } else if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Email))
-        {
-            throw new Exception("Username และ Email ต้องไม่เป็นค่าว่าง");
-        } else if (!request.Email.Contains("@"))
-        {
-            throw new Exception("Email ต้องมีรูปแบบที่ถูกต้อง");
-        } else if (request.Username.Length < 3)
-        {
-            throw new Exception("Username ต้องมีความยาวอย่างน้อย 3 ตัวอักษร");
-        } else if (request.Username.Length > 50)
-        {
-            throw new Exception("Username ต้องมีความยาวไม่เกิน 50 ตัวอักษร");
         }
 
         string PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -84,6 +67,36 @@ public class UserService : IUserService
         {
             Username = user.Username,
             Email = user.Email
+        };
+    }
+
+    public async Task<UserResponsDto?> Update(int id, UserUpdateDto request)
+    {
+        User? user = await _context.Users.FindAsync(id);
+        if (user == null) return null;
+        if (!string.IsNullOrWhiteSpace(request.Username))
+        {
+            if (await _context.Users.AnyAsync(u => u.Username == request.Username && u.Id != id))
+            {
+                throw new Exception("Username นี้มีอยู่แล้ว");
+            }
+            user.Username = request.Username;
+        }
+        if (!string.IsNullOrWhiteSpace(request.Email))
+        {
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email && u.Id != id))
+            {
+                throw new Exception("Email นี้มีอยู่แล้ว");
+            }
+            user.Email = request.Email;
+        }
+        await _context.SaveChangesAsync();
+        return new UserResponsDto
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            IsActive = user.IsActive
         };
     }
 }

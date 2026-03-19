@@ -6,7 +6,7 @@ namespace TodoListAPI.Data;
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-    
+
     public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<TodoItem> TodoItems { get; set; } = null!;
@@ -16,7 +16,7 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<User>().ToTable("users");
-        
+
         // Configure the User entity
         modelBuilder.Entity<User>(entity =>
         {
@@ -38,6 +38,14 @@ public class AppDbContext : DbContext
         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         modelBuilder.Entity<TodoItem>().ToTable("todo_items");
+
+        modelBuilder.Entity<TodoItem>()
+        .Property(u => u.CreatedAt)
+        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        modelBuilder.Entity<TodoItem>()
+        .Property(u => u.UpdatedAt)
+        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         modelBuilder.Entity<TodoItem>()
         .HasOne(t => t.User)

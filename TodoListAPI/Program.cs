@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITodoService, TodoService>();
 
 var app = builder.Build();
 

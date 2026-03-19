@@ -24,9 +24,11 @@ public class TodoItem
     [Column("is_completed")]
     public bool IsCompleted { get; set; } = false;
 
-    [Required]
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
 
     [Required]
     [Column("user_id")]
